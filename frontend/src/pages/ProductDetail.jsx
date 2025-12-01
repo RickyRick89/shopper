@@ -1,12 +1,12 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { AuthContext } from '../App'
+import { useAuth } from '../context/AuthContext'
 import { apiService } from '../services/api'
 
 function ProductDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user, token } = useContext(AuthContext)
+  const { user, token } = useAuth()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)

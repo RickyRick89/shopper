@@ -1,11 +1,11 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { AuthContext } from '../App'
+import { useAuth } from '../context/AuthContext'
 import { apiService } from '../services/api'
 
 function Wishlist() {
   const navigate = useNavigate()
-  const { user, token } = useContext(AuthContext)
+  const { user, token } = useAuth()
   const [wishlist, setWishlist] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
