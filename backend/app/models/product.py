@@ -37,6 +37,7 @@ class Price(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     product_id = Column(Integer, ForeignKey("products.id"), index=True, nullable=False)
+    retailer_id = Column(Integer, ForeignKey("retailers.id"), index=True, nullable=True)
     retailer = Column(String, index=True, nullable=False)
     price = Column(Float, nullable=False)
     currency = Column(String, default="USD")
@@ -46,3 +47,4 @@ class Price(Base):
 
     # Relationships
     product = relationship("Product", back_populates="prices")
+    retailer_obj = relationship("Retailer", back_populates="prices")

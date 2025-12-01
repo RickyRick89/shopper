@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import auth, products, users, wishlist
+from app.api.routes import auth, products, search, users, wishlist
 from app.core.config import get_settings
 from app.db.database import Base, engine
 
@@ -35,6 +35,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix=settings.api_v1_prefix)
 app.include_router(users.router, prefix=settings.api_v1_prefix)
 app.include_router(products.router, prefix=settings.api_v1_prefix)
+app.include_router(search.router, prefix=settings.api_v1_prefix)
 app.include_router(wishlist.router, prefix=settings.api_v1_prefix)
 
 
