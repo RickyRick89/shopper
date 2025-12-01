@@ -20,6 +20,12 @@ from app.schemas.product import (
     PriceCreate,
     PriceResponse,
 )
+from app.schemas.retailer import (
+    RetailerBase,
+    RetailerCreate,
+    RetailerUpdate,
+    RetailerResponse,
+)
 from app.schemas.wishlist import (
     WishlistItemBase,
     WishlistItemCreate,
@@ -45,6 +51,10 @@ __all__ = [
     "PriceBase",
     "PriceCreate",
     "PriceResponse",
+    "RetailerBase",
+    "RetailerCreate",
+    "RetailerUpdate",
+    "RetailerResponse",
     "WishlistItemBase",
     "WishlistItemCreate",
     "WishlistItemUpdate",
