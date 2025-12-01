@@ -96,6 +96,40 @@ class ApiService {
   async removeFromWishlist(itemId) {
     return this.delete(`/wishlist/${itemId}`, true)
   }
+
+  // Search
+  async searchProducts(params = {}) {
+    const searchParams = new URLSearchParams()
+    if (params.q) searchParams.append('q', params.q)
+    if (params.category) searchParams.append('category', params.category)
+    if (params.brand) searchParams.append('brand', params.brand)
+    if (params.min_price) searchParams.append('min_price', params.min_price)
+    if (params.max_price) searchParams.append('max_price', params.max_price)
+    if (params.retailer) searchParams.append('retailer', params.retailer)
+    if (params.in_stock) searchParams.append('in_stock', 'true')
+    if (params.zip_code) searchParams.append('zip_code', params.zip_code)
+    if (params.radius) searchParams.append('radius', params.radius)
+    if (params.page) searchParams.append('page', params.page)
+    if (params.limit) searchParams.append('limit', params.limit)
+
+    const queryString = searchParams.toString()
+    return this.get(`/search/products${queryString ? '?' + queryString : ''}`)
+  }
+
+  async getSearchSuggestions(query) {
+    return this.get(`/search/suggestions?q=${encodeURIComponent(query)}`)
+  }
+
+  async getDeals(params = {}) {
+    const searchParams = new URLSearchParams()
+    if (params.category) searchParams.append('category', params.category)
+    if (params.max_price) searchParams.append('max_price', params.max_price)
+    if (params.page) searchParams.append('page', params.page)
+    if (params.limit) searchParams.append('limit', params.limit)
+
+    const queryString = searchParams.toString()
+    return this.get(`/search/deals${queryString ? '?' + queryString : ''}`)
+  }
 }
 
 export const apiService = new ApiService()

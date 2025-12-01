@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.product import Price, Product
 from app.schemas.product import ProductResponse, ProductWithPrices
+from app.services import search as search_service
 
 router = APIRouter(prefix="/search", tags=["search"])
 
@@ -108,15 +109,41 @@ def get_search_suggestions(
     db: Session = Depends(get_db),
 ):
     """Get search suggestions based on product names."""
-    search_pattern = f"%{q}%"
+    return search_service.get_search_suggestions(db, q, limit)
 
-    # Get matching product names
-    products = (
-        db.query(Product.name)
-        .filter(Product.name.ilike(search_pattern))
-        .distinct()
-        .limit(limit)
-        .all()
+
+@router.get("/location", response_model=List[ProductResponse])
+def search_products_by_location(
+    zip_code: Optional[str] = Query(None, description="US zip code for location"),
+    latitude: Optional[float] = Query(None, ge=-90, le=90, description="Latitude"),
+    longitude: Optional[float] = Query(None, ge=-180, le=180, description="Longitude"),
+    radius: float = Query(25.0, ge=1, le=500, description="Search radius in miles"),
+    q: Optional[str] = Query(None, description="Search query"),
+    category: Optional[str] = Query(None, description="Filter by category"),
+    page: int = Query(1, ge=1, description="Page number"),
+    limit: int = Query(20, ge=1, le=100, description="Items per page"),
+    db: Session = Depends(get_db),
+):
+    """Search products with location-based filtering."""
+    return search_service.search_products_by_location(
+        db=db,
+        zip_code=zip_code,
+        latitude=latitude,
+        longitude=longitude,
+        radius_miles=radius,
+        query=q,
+        category=category,
+        page=page,
+        limit=limit,
     )
 
-    return [product.name for product in products]
+
+@router.get("/coordinates")
+def get_coordinates_from_zip(
+    zip_code: str = Query(..., min_length=5, max_length=5, description="US 5-digit zip code"),
+):
+    """Convert a zip code to latitude/longitude coordinates."""
+    coords = search_service.zip_to_coordinates(zip_code)
+    if coords:
+        return {"zip_code": zip_code, "latitude": coords[0], "longitude": coords[1]}
+    return {"zip_code": zip_code, "latitude": None, "longitude": None, "message": "Zip code not found"}
