@@ -83,7 +83,7 @@ def search_deals(
     db: Session = Depends(get_db),
 ):
     """Find products with the best deals (lowest prices, in stock)."""
-    products_query = db.query(Product).join(Price).filter(Price.in_stock == True)
+    products_query = db.query(Product).join(Price).filter(Price.in_stock.is_(True))
 
     if category:
         products_query = products_query.filter(Product.category.ilike(f"%{category}%"))
