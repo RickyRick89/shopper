@@ -3,14 +3,16 @@
 import math
 from typing import Dict, List, Optional, Tuple
 
-from sqlalchemy import func, or_
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.models.product import Price, Product
 
 
-# US Zip code to coordinates mapping (sample data)
-# In production, this would use a geocoding API or database
+# Sample US Zip code to coordinates mapping for demonstration purposes.
+# PRODUCTION NOTE: Replace this with a geocoding API (Google Maps, OpenStreetMap Nominatim,
+# or a dedicated zip code database like USPS or commercial providers) for comprehensive
+# coverage. This sample data covers major US cities for testing and demonstration.
 ZIP_CODE_COORDS: Dict[str, Tuple[float, float]] = {
     "10001": (40.7484, -73.9967),  # New York, NY
     "90210": (34.0901, -118.4065),  # Beverly Hills, CA
@@ -199,34 +201,40 @@ def search_products_by_location(
     """
     Search products with location-based filtering.
 
-    Note: This is a simplified implementation. In production, you would:
-    1. Have retailers with location data (lat/lon)
-    2. Filter retailers within the radius
-    3. Return products available at those retailers
+    IMPORTANT: This implementation provides the foundation for location-based search.
+    Currently, it performs text/category filtering while accepting location parameters.
+    Full location-based filtering requires:
+    1. Adding location data (lat/lon) to Retailer model
+    2. Filtering retailers within the specified radius
+    3. Returning only products available at nearby retailers
+
+    The location parameters (zip_code, latitude, longitude, radius_miles) are accepted
+    and can be used to extend this functionality in production. The zip_to_coordinates
+    and haversine_distance helper functions are available for distance calculations.
 
     Args:
         db: Database session
-        zip_code: US zip code for location center
+        zip_code: US zip code for location center (converted to lat/lon internally)
         latitude: Latitude for location center (used if zip_code not provided)
         longitude: Longitude for location center (used if zip_code not provided)
-        radius_miles: Search radius in miles
-        query: Text search query
+        radius_miles: Search radius in miles (default: 25 miles)
+        query: Text search query for product name/description/brand
         category: Filter by category
-        page: Page number
+        page: Page number (1-indexed)
         limit: Results per page
 
     Returns:
-        List of matching products
+        List of matching products (filtered by text/category, location-ready)
     """
     # Get coordinates from zip code or use provided lat/lon
+    # These can be used when retailer location data is available
     coords = None
     if zip_code:
         coords = zip_to_coordinates(zip_code)
     elif latitude is not None and longitude is not None:
         coords = (latitude, longitude)
 
-    # For now, we do text/category filtering
-    # Location filtering would require retailer location data
+    # Text/category filtering (location filtering to be added with retailer locations)
     products_query = db.query(Product)
 
     if query:

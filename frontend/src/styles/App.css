@@ -160,6 +160,11 @@
   border: 1px solid #666;
 }
 
+.btn-full-width {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
 .btn-danger {
   background-color: #ff4444;
   color: white;

@@ -76,10 +76,43 @@ function SearchPage() {
 
   // Initial search on mount if there are params
   useEffect(() => {
-    if (searchParams.toString()) {
-      performSearch()
+    const doInitialSearch = async () => {
+      if (searchParams.toString()) {
+        setLoading(true)
+        setError(null)
+        setShowSuggestions(false)
+
+        try {
+          const params = {}
+          const q = searchParams.get('q')
+          const cat = searchParams.get('category')
+          const br = searchParams.get('brand')
+          const minP = searchParams.get('min_price')
+          const maxP = searchParams.get('max_price')
+          const zip = searchParams.get('zip')
+          const rad = searchParams.get('radius')
+          const stock = searchParams.get('in_stock')
+
+          if (q) params.q = q
+          if (cat) params.category = cat
+          if (br) params.brand = br
+          if (minP) params.min_price = parseFloat(minP)
+          if (maxP) params.max_price = parseFloat(maxP)
+          if (zip) params.zip_code = zip
+          if (rad) params.radius = parseFloat(rad)
+          if (stock === 'true') params.in_stock = true
+
+          const data = await apiService.searchProducts(params)
+          setProducts(data)
+        } catch (err) {
+          setError(err.message)
+        } finally {
+          setLoading(false)
+        }
+      }
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    doInitialSearch()
+  }, [searchParams])
 
   const handleQueryChange = (e) => {
     const value = e.target.value

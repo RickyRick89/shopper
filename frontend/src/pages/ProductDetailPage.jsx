@@ -213,7 +213,7 @@ function ProductDetailPage() {
                 <h3>{relatedProduct.name}</h3>
                 <p>{relatedProduct.brand}</p>
                 <Link to={`/products/${relatedProduct.id}`}>
-                  <button style={{ marginTop: '0.5rem', width: '100%' }}>View Details</button>
+                  <button className="btn-secondary btn-full-width">View Details</button>
                 </Link>
               </div>
             ))}
