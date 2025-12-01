@@ -1,0 +1,107 @@
+import { useState, useEffect, useContext } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { AuthContext } from '../App'
+
+function ProductDetail() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { user, token } = useContext(AuthContext)
+  const [product, setProduct] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [message, setMessage] = useState(null)
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(`/api/v1/products/${id}`)
+        if (!response.ok) throw new Error('Product not found')
+        const data = await response.json()
+        setProduct(data)
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProduct()
+  }, [id])
+
+  const addToWishlist = async () => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/v1/wishlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ product_id: parseInt(id) }),
+      })
+
+      if (response.status === 400) {
+        setMessage({ type: 'error', text: 'Product already in wishlist' })
+      } else if (response.ok) {
+        setMessage({ type: 'success', text: 'Added to wishlist!' })
+      } else {
+        throw new Error('Failed to add to wishlist')
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message })
+    }
+  }
+
+  if (loading) return <div className="loading">Loading...</div>
+  if (error) return <div className="alert alert-error">{error}</div>
+  if (!product) return <div className="empty-state">Product not found</div>
+
+  return (
+    <div className="product-detail">
+      <div className="product-image">
+        {product.image_url ? (
+          <img src={product.image_url} alt={product.name} />
+        ) : (
+          <span>No Image Available</span>
+        )}
+      </div>
+      <div className="product-info">
+        <h1>{product.name}</h1>
+        {product.brand && <p><strong>Brand:</strong> {product.brand}</p>}
+        {product.category && <p><strong>Category:</strong> {product.category}</p>}
+        {product.description && <p>{product.description}</p>}
+
+        {message && (
+          <div className={`alert alert-${message.type}`}>{message.text}</div>
+        )}
+
+        <button onClick={addToWishlist} className="btn-primary" style={{ marginTop: '1rem' }}>
+          ❤️ Add to Wishlist
+        </button>
+
+        <div className="price-comparison">
+          <h2>Price Comparison</h2>
+          {product.prices && product.prices.length > 0 ? (
+            <ul className="price-list">
+              {product.prices
+                .sort((a, b) => a.price - b.price)
+                .map((price) => (
+                  <li key={price.id} className="price-item">
+                    <span>{price.retailer}</span>
+                    <span className="product-price">${price.price.toFixed(2)}</span>
+                  </li>
+                ))}
+            </ul>
+          ) : (
+            <p>No price data available yet.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default ProductDetail
