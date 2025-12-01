@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { AuthContext } from '../App'
+import { apiService } from '../services/api'
 
 function Wishlist() {
   const navigate = useNavigate()
@@ -17,13 +18,8 @@ function Wishlist() {
 
     const fetchWishlist = async () => {
       try {
-        const response = await fetch('/api/v1/wishlist', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        })
-        if (!response.ok) throw new Error('Failed to fetch wishlist')
-        const data = await response.json()
+        apiService.setToken(token)
+        const data = await apiService.getWishlist()
         setWishlist(data)
       } catch (err) {
         setError(err.message)
@@ -37,15 +33,9 @@ function Wishlist() {
 
   const removeFromWishlist = async (itemId) => {
     try {
-      const response = await fetch(`/api/v1/wishlist/${itemId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-      if (response.ok) {
-        setWishlist(wishlist.filter((item) => item.id !== itemId))
-      }
+      apiService.setToken(token)
+      await apiService.removeFromWishlist(itemId)
+      setWishlist(wishlist.filter((item) => item.id !== itemId))
     } catch (err) {
       setError(err.message)
     }

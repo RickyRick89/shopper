@@ -19,8 +19,10 @@ class ApiService {
     return headers
   }
 
-  async get(endpoint) {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`)
+  async get(endpoint, requiresAuth = false) {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      headers: requiresAuth ? this.getHeaders(true) : {},
+    })
     if (!response.ok) throw new Error('Request failed')
     return response.json()
   }
@@ -84,11 +86,7 @@ class ApiService {
 
   // Wishlist
   async getWishlist() {
-    const response = await fetch(`${API_BASE_URL}/wishlist`, {
-      headers: this.getHeaders(true),
-    })
-    if (!response.ok) throw new Error('Failed to fetch wishlist')
-    return response.json()
+    return this.get('/wishlist', true)
   }
 
   async addToWishlist(productId, targetPrice = null) {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../App'
+import { apiService } from '../services/api'
 
 function ProductDetail() {
   const { id } = useParams()
@@ -14,9 +15,7 @@ function ProductDetail() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`/api/v1/products/${id}`)
-        if (!response.ok) throw new Error('Product not found')
-        const data = await response.json()
+        const data = await apiService.getProduct(id)
         setProduct(data)
       } catch (err) {
         setError(err.message)
@@ -34,24 +33,15 @@ function ProductDetail() {
     }
 
     try {
-      const response = await fetch('/api/v1/wishlist', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ product_id: parseInt(id) }),
-      })
-
-      if (response.status === 400) {
-        setMessage({ type: 'error', text: 'Product already in wishlist' })
-      } else if (response.ok) {
-        setMessage({ type: 'success', text: 'Added to wishlist!' })
-      } else {
-        throw new Error('Failed to add to wishlist')
-      }
+      apiService.setToken(token)
+      await apiService.addToWishlist(parseInt(id))
+      setMessage({ type: 'success', text: 'Added to wishlist!' })
     } catch (err) {
-      setMessage({ type: 'error', text: err.message })
+      if (err.message.includes('already in wishlist')) {
+        setMessage({ type: 'error', text: 'Product already in wishlist' })
+      } else {
+        setMessage({ type: 'error', text: err.message })
+      }
     }
   }
 

@@ -1,7 +1,7 @@
 """Product database model."""
 
 from datetime import datetime, timezone
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
@@ -41,7 +41,7 @@ class Price(Base):
     price = Column(Float, nullable=False)
     currency = Column(String, default="USD")
     url = Column(String, nullable=True)
-    in_stock = Column(Integer, default=1)  # 1 = in stock, 0 = out of stock
+    in_stock = Column(Boolean, default=True)
     scraped_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Relationships

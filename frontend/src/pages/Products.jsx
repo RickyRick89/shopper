@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import ProductCard from '../components/ProductCard'
 import SearchBar from '../components/SearchBar'
+import { apiService } from '../services/api'
 
 function Products() {
   const [products, setProducts] = useState([])
@@ -10,12 +11,7 @@ function Products() {
   const fetchProducts = async (query = '') => {
     setLoading(true)
     try {
-      const params = new URLSearchParams()
-      if (query) params.append('query', query)
-      
-      const response = await fetch(`/api/v1/products?${params}`)
-      if (!response.ok) throw new Error('Failed to fetch products')
-      const data = await response.json()
+      const data = await apiService.getProducts(query)
       setProducts(data)
       setError(null)
     } catch (err) {

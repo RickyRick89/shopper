@@ -130,7 +130,7 @@ def add_price(product_id: int, price_data: PriceCreate, db: Session = Depends(ge
         price=price_data.price,
         currency=price_data.currency,
         url=price_data.url,
-        in_stock=1 if price_data.in_stock else 0,
+        in_stock=price_data.in_stock,
     )
     db.add(price)
     db.commit()

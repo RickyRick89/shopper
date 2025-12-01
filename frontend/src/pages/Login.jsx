@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { AuthContext } from '../App'
+import { apiService } from '../services/api'
 
 function Login() {
   const navigate = useNavigate()
@@ -16,24 +17,7 @@ function Login() {
     setError(null)
 
     try {
-      const formData = new URLSearchParams()
-      formData.append('username', email)
-      formData.append('password', password)
-
-      const response = await fetch('/api/v1/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.detail || 'Login failed')
-      }
-
-      const data = await response.json()
+      const data = await apiService.login(email, password)
       login(data.access_token)
       navigate('/')
     } catch (err) {

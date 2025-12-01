@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { AuthContext } from '../App'
+import { apiService } from '../services/api'
 
 function Register() {
   const navigate = useNavigate()
@@ -34,41 +35,15 @@ function Register() {
 
     try {
       // Register
-      const registerResponse = await fetch('/api/v1/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          full_name: formData.full_name,
-        }),
+      await apiService.register({
+        email: formData.email,
+        password: formData.password,
+        full_name: formData.full_name,
       })
-
-      if (!registerResponse.ok) {
-        const data = await registerResponse.json()
-        throw new Error(data.detail || 'Registration failed')
-      }
 
       // Auto-login after registration
-      const loginFormData = new URLSearchParams()
-      loginFormData.append('username', formData.email)
-      loginFormData.append('password', formData.password)
-
-      const loginResponse = await fetch('/api/v1/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: loginFormData,
-      })
-
-      if (loginResponse.ok) {
-        const data = await loginResponse.json()
-        login(data.access_token)
-      }
-
+      const loginData = await apiService.login(formData.email, formData.password)
+      login(loginData.access_token)
       navigate('/')
     } catch (err) {
       setError(err.message)
