@@ -185,7 +185,7 @@ class TestSaxophoneSearch:
                 + " "
                 + (product.get("description") or "").lower()
             )
-            assert "saxophone" in product_text or "yamaha" in product_text.lower()
+            assert "saxophone" in product_text or "yamaha" in product_text
 
     def test_boise_zip_code_coordinates(self, client):
         """Test that Boise zip code 83702 is properly mapped to coordinates."""
@@ -223,7 +223,7 @@ class TestSaxophoneSearch:
         # Check for local retailers (Boise Music Warehouse or Idaho Music Store)
         local_retailers = ["boise music warehouse", "idaho music store"]
         has_local_retailer = any(
-            local in retailer for local in local_retailers for retailer in retailer_names
+            local in retailer for retailer in retailer_names for local in local_retailers
         )
         # Either local retailer or we found results
         assert has_local_retailer or len(prices) > 0
@@ -250,7 +250,7 @@ class TestSaxophoneSearch:
         # Check for online retailers
         online_retailers = ["amazon", "sweetwater", "guitar center", "sam ash", "musicians friend"]
         has_online_retailer = any(
-            online in retailer for online in online_retailers for retailer in all_retailers
+            online in retailer for retailer in all_retailers for online in online_retailers
         )
         assert has_online_retailer, f"Expected online retailers in {all_retailers}"
 
@@ -455,8 +455,10 @@ class TestLocationBasedSorting:
             prices = []
             for product in data:
                 if product.get("prices"):
-                    min_price = min(p["price"] for p in product["prices"] if p.get("in_stock", True))
-                    prices.append(min_price)
+                    in_stock_prices = [p["price"] for p in product["prices"] if p.get("in_stock", True)]
+                    if in_stock_prices:
+                        min_price = min(in_stock_prices)
+                        prices.append(min_price)
 
             # Prices should be sorted in ascending order
             if len(prices) >= 2:
