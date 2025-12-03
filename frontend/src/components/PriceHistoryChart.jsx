@@ -149,7 +149,7 @@ function PriceHistoryChart({ productId, priceHistory, isLoading, error }) {
           />
 
           {/* Data points */}
-          {chartData.map((point, index) => {
+          {(() => {
             const prices = chartData.map((d) => d.price)
             const minPrice = Math.min(...prices)
             const maxPrice = Math.max(...prices)
@@ -158,19 +158,21 @@ function PriceHistoryChart({ productId, priceHistory, isLoading, error }) {
             const chartHeight = 100
             const padding = 5
 
-            const x = padding + (index / (chartData.length - 1 || 1)) * (chartWidth - 2 * padding)
-            const y = chartHeight - padding - ((point.price - minPrice) / priceRange) * (chartHeight - 2 * padding)
+            return chartData.map((point, index) => {
+              const x = padding + (index / (chartData.length - 1 || 1)) * (chartWidth - 2 * padding)
+              const y = chartHeight - padding - ((point.price - minPrice) / priceRange) * (chartHeight - 2 * padding)
 
-            return (
-              <circle
-                key={index}
-                cx={x}
-                cy={y}
-                r="1.5"
-                fill="#646cff"
-              />
-            )
-          })}
+              return (
+                <circle
+                  key={index}
+                  cx={x}
+                  cy={y}
+                  r="1.5"
+                  fill="#646cff"
+                />
+              )
+            })
+          })()}
         </svg>
 
         <div className="chart-labels">
