@@ -97,6 +97,22 @@ class ApiService {
     return this.delete(`/wishlist/${itemId}`, true)
   }
 
+  async getWishlistItemPriceHistory(itemId, days = 30, retailer = null) {
+    const searchParams = new URLSearchParams()
+    searchParams.append('days', days)
+    if (retailer) searchParams.append('retailer', retailer)
+    const queryString = searchParams.toString()
+    return this.get(`/wishlist/${itemId}/price-history?${queryString}`, true)
+  }
+
+  async getProductPriceHistory(productId, days = 30, retailer = null) {
+    const searchParams = new URLSearchParams()
+    searchParams.append('days', days)
+    if (retailer) searchParams.append('retailer', retailer)
+    const queryString = searchParams.toString()
+    return this.get(`/wishlist/products/${productId}/price-history?${queryString}`)
+  }
+
   // Search
   async searchProducts(params = {}) {
     const searchParams = new URLSearchParams()
