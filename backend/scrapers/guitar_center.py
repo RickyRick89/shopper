@@ -306,6 +306,7 @@ class GuitarCenterScraper(BaseScraper):
         Returns:
             List of store inventory dictionaries
         """
-        # This would typically make an AJAX call to get store inventory
-        # For now, return empty list as this requires JavaScript execution
+        # TODO: Implement store inventory lookup via AJAX API
+        # This requires JavaScript execution or direct API calls
+        # to Guitar Center's inventory service
         return []

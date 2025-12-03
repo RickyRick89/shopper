@@ -274,7 +274,9 @@ class BaseScraper(ABC):
         if city:
             location["city"] = city.strip()
         if state:
-            location["state"] = state.strip().upper()[:2]
+            # Truncate to 2 chars for US state codes; international codes preserved as-is
+            state_clean = state.strip().upper()
+            location["state"] = state_clean[:2] if len(state_clean) > 2 else state_clean
         if zip_code:
             # Normalize US zip codes
             zip_clean = re.sub(r"[^\d-]", "", zip_code)
