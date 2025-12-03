@@ -28,6 +28,7 @@ class Product(Base):
     # Relationships
     prices = relationship("Price", back_populates="product")
     wishlist_items = relationship("WishlistItem", back_populates="product")
+    price_history = relationship("PriceHistory", back_populates="product")
 
 
 class Price(Base):

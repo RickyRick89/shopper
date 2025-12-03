@@ -33,6 +33,15 @@ from app.schemas.wishlist import (
     WishlistItemResponse,
     WishlistItemWithProduct,
 )
+from app.schemas.price_history import (
+    PriceHistoryBase,
+    PriceHistoryCreate,
+    PriceHistoryResponse,
+    PriceHistoryList,
+    PriceHistoryStats,
+    PriceHistoryChartData,
+    PriceHistoryChartResponse,
+)
 
 __all__ = [
     "UserBase",
@@ -60,4 +69,11 @@ __all__ = [
     "WishlistItemUpdate",
     "WishlistItemResponse",
     "WishlistItemWithProduct",
+    "PriceHistoryBase",
+    "PriceHistoryCreate",
+    "PriceHistoryResponse",
+    "PriceHistoryList",
+    "PriceHistoryStats",
+    "PriceHistoryChartData",
+    "PriceHistoryChartResponse",
 ]
