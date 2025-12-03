@@ -29,6 +29,7 @@ ZIP_CODE_COORDS: Dict[str, Tuple[float, float]] = {
     "98101": (47.6062, -122.3321),  # Seattle, WA
     "80201": (39.7392, -104.9903),  # Denver, CO
     "02101": (42.3601, -71.0589),  # Boston, MA
+    "83702": (43.6150, -116.2023),  # Boise, ID
 }
 
 
