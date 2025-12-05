@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     # Database
     database_url: str = "sqlite:///./shopper.db"
 
+    # Redis
+    redis_url: str = "redis://localhost:6379/0"
+
     # Security
     secret_key: str = "your-secret-key-change-in-production"
     algorithm: str = "HS256"

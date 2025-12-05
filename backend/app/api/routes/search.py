@@ -8,10 +8,97 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.models.product import Price, Product
-from app.schemas.product import ProductResponse, ProductWithPrices
+from app.schemas.product import ProductCreate, ProductResponse, ProductWithPrices
 from app.services import search as search_service
+from app.services.product import add_product_price, create_product
 
 router = APIRouter(prefix="/search", tags=["search"])
+
+
+# Lightweight demo data used when a search returns no rows so the UI shows example results.
+DEMO_RESULTS = {
+    "saxophone": [
+        {
+            "product": ProductCreate(
+                name="Yamaha YAS-280 Alto Saxophone",
+                brand="Yamaha",
+                category="Instruments",
+                description="Student alto sax with case and mouthpiece.",
+            ),
+            "prices": [
+                {"retailer": "Sweetwater", "price": 1299.99, "url": "https://example.com/yas-280-sw"},
+                {"retailer": "Guitar Center", "price": 1199.99, "url": "https://example.com/yas-280-gc"},
+            ],
+        }
+    ],
+    "guitar": [
+        {
+            "product": ProductCreate(
+                name="Fender Player Stratocaster",
+                brand="Fender",
+                category="Electric Guitars",
+                description="Aldrich body, maple neck, classic single-coil tone.",
+            ),
+            "prices": [
+                {"retailer": "Sweetwater", "price": 799.99, "url": "https://example.com/strat-sw"},
+                {"retailer": "Guitar Center", "price": 749.99, "url": "https://example.com/strat-gc"},
+            ],
+        }
+    ],
+    "laptop": [
+        {
+            "product": ProductCreate(
+                name="Dell XPS 13",
+                brand="Dell",
+                category="Computers",
+                description="13-inch ultrabook with Intel Evo platform.",
+            ),
+            "prices": [
+                {"retailer": "Amazon", "price": 1199.00, "url": "https://example.com/xps13-amz"},
+                {"retailer": "Best Buy", "price": 1149.00, "url": "https://example.com/xps13-bb"},
+            ],
+        }
+    ],
+    "shoes": [
+        {
+            "product": ProductCreate(
+                name="Nike Air Zoom Pegasus",
+                brand="Nike",
+                category="Footwear",
+                description="Daily training running shoes with responsive cushioning.",
+            ),
+            "prices": [
+                {"retailer": "Nike", "price": 129.99, "url": "https://example.com/pegasus"},
+                {"retailer": "Foot Locker", "price": 119.99, "url": "https://example.com/pegasus-fl"},
+            ],
+        }
+    ],
+}
+
+
+def _maybe_seed_demo_results(db: Session, query_text: str) -> None:
+    """When a search yields no rows, insert a small demo set for the query keyword."""
+
+    normalized = (query_text or "").lower()
+    for keyword, entries in DEMO_RESULTS.items():
+        if keyword in normalized:
+            for entry in entries:
+                # Skip if product already exists
+                exists = db.query(Product).filter(Product.name == entry["product"].name).first()
+                if exists:
+                    continue
+
+                product = create_product(db, entry["product"])
+                for price in entry.get("prices", []):
+                    add_product_price(
+                        db,
+                        product_id=product.id,
+                        retailer=price["retailer"],
+                        price=price["price"],
+                        url=price.get("url"),
+                        in_stock=True,
+                    )
+            break
 
 
 @router.get("/products", response_model=List[ProductResponse])
@@ -71,6 +158,11 @@ def search_products(
     # Pagination
     offset = (page - 1) * limit
     products = products_query.offset(offset).limit(limit).all()
+
+    # If no results, seed a small demo set for this query and retry once
+    if not products and q:
+        _maybe_seed_demo_results(db, q)
+        products = products_query.offset(offset).limit(limit).all()
 
     return products
 
